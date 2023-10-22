@@ -24,20 +24,24 @@ def send_email(recipient, body, person_name=''):
     html = html.replace('COPPIA_ID', person_name)
     # print(html)
 
-    #Attach Image 
-    fp = open('santa.gif', 'rb') #Read image 
-    msgImage = MIMEImage(fp.read())
+    # Pick a random GIF from the library.
+    gif_number = randint(1, 12)
+    gif_name = str(gif_number) + '.gif'
+
+    # Attach Image
+    fp = open('GIFS/' + gif_name, 'rb')
+    msg_image = MIMEImage(fp.read())
     fp.close()
 
     part1 = MIMEText(text, 'plain')
     part2 = MIMEText(html, 'html')
 
     # Define the image's ID as referenced above
-    msgImage.add_header('Content-ID', '<image1>')
+    msg_image.add_header('Content-ID', '<image1>')
     
     msg.attach(part1)
     msg.attach(part2)
-    msg.attach(msgImage)
+    msg.attach(msg_image)
 
     try:
         server = smtplib.SMTP("smtp.gmail.com", 587)
@@ -53,25 +57,25 @@ def send_email(recipient, body, person_name=''):
 
 
 everyone = [
-    {"name": "ignazio",   "family": "red",   "email": "ignaziomusarra@gmail.com",       "lastyearTo": "simone"   },
-    {"name": "loredana",  "family": "red",   "email": "lorymarty67@libero.it",          "lastyearTo": "alessia"  },
-    {"name": "roberta",   "family": "red",   "email": "robertamusarra@gmail.com",       "lastyearTo": "claudio"  },
-    {"name": "riccardo",  "family": "red",   "email": "riccardoschiliro.rs@gmail.com",  "lastyearTo": "camillo"  },
-    {"name": "silvia",    "family": "red",   "email": "musarrasilvia@gmail.com",        "lastyearTo": "simone"   },
-    {"name": "max",       "family": "red",   "email": "massimovlacancich@gmail.com",    "lastyearTo": "sabrina"  },
-    {"name": "franco",    "family": "green", "email": "francomusarra@libero.it",        "lastyearTo": "antonella"},
-    {"name": "flavia",    "family": "green", "email": "flaviarosso@libero.it",          "lastyearTo": "ignazio"  },
-    {"name": "sabrina",   "family": "green", "email": "musarrasabrina@gmail.com",       "lastyearTo": "loredana" },
-    {"name": "camillo",   "family": "green", "email": "scalaa@yahoo.com",               "lastyearTo": "roberta"  },
-    {"name": "sergio",    "family": "blue",  "email": "musarrotti@gmail.com",           "lastyearTo": "franco"   },
-    {"name": "luisa",     "family": "blue",  "email": "luisa.arrotti@gmail.com",        "lastyearTo": "max"      },
-    {"name": "simone",    "family": "blue",  "email": "simonemusarra96@gmail.com",      "lastyearTo": "flavia"   },
-    {"name": "alessia",   "family": "blue",  "email": "alemusa98@gmail.com",            "lastyearTo": "riccardo" },
-    {"name": "claudio",   "family": "pink",  "email": "cmus29@gmail.com",               "lastyearTo": "luisa"    },
-    {"name": "antonella", "family": "pink",  "email": "brusa123451@gmail.com",          "lastyearTo": "silvia"   },
+    {"name": "ignazio",   "family": "red",   "email": "ignaziomusarra@gmail.com",       "lastyearTo": "camillo"  },
+    {"name": "loredana",  "family": "red",   "email": "lorymarty67@libero.it",          "lastyearTo": "claudio"  },
+    {"name": "roberta",   "family": "red",   "email": "robertamusarra@gmail.com",       "lastyearTo": "sabrina"  },
+    {"name": "riccardo",  "family": "red",   "email": "riccardoschiliro.rs@gmail.com",  "lastyearTo": "sergio"   },
+    {"name": "silvia",    "family": "red",   "email": "musarrasilvia@gmail.com",        "lastyearTo": "franco"   },
+    {"name": "max",       "family": "red",   "email": "massimovlacancich@gmail.com",    "lastyearTo": "simone"   },
+    {"name": "franco",    "family": "green", "email": "francomusarra@libero.it",        "lastyearTo": "riccardo" },
+    {"name": "flavia",    "family": "green", "email": "flaviarosso@libero.it",          "lastyearTo": "max"      },
+    {"name": "sabrina",   "family": "green", "email": "musarrasabrina@gmail.com",       "lastyearTo": "alessia"  },
+    {"name": "camillo",   "family": "green", "email": "scalaa@yahoo.com",               "lastyearTo": "silvia"   },
+    {"name": "sergio",    "family": "blue",  "email": "musarrotti@gmail.com",           "lastyearTo": "ignazio"  },
+    {"name": "luisa",     "family": "blue",  "email": "luisa.arrotti@gmail.com",        "lastyearTo": "loredana" },
+    {"name": "simone",    "family": "blue",  "email": "simonemusarra96@gmail.com",      "lastyearTo": "roberta"  },
+    {"name": "alessia",   "family": "blue",  "email": "alemusa98@gmail.com",            "lastyearTo": "antonella"},
+    {"name": "claudio",   "family": "pink",  "email": "cmus29@gmail.com",               "lastyearTo": "flavia"   },
+    {"name": "antonella", "family": "pink",  "email": "brusa123451@gmail.com",          "lastyearTo": "luisa"    },
 ] 
 
-debug = False
+debug = True
 
 def run():
 
