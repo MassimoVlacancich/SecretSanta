@@ -4,34 +4,44 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 
+test_mode = True
+
 def read_filecontent(filename):
     with open(filename, 'r') as content_file:
         content = content_file.read()
     return content
 
-def send_email(recipient, body, person_name=''):
+def send_email(recipient, person_name=''):
     import smtplib
     user = 'musarra.babbo.natale.segreto@gmail.com'
     pwd = 'uewcmlbwwscrsaob'
 
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = 'Babbo Natale Segreto'
+    subject = 'Babbo Natale Segreto - TEST' if test_mode else 'Babbo Natale Segreto'
+    msg['Subject'] = subject
     msg['From'] = user
     msg['To'] = recipient
 
-    text = body
-    html = read_filecontent('template.html')
-    html = html.replace('COPPIA_ID', person_name)
+    text = ''
+    template_name = 'test_template.html' if test_mode else 'template.html'
+    html = read_filecontent(template_name)
+    if not test_mode:
+        html = html.replace('COPPIA_ID', person_name)
     # print(html)
 
-    # Pick a random GIF from the library.
-    gif_number = randint(1, 12)
-    gif_name = str(gif_number) + '.gif'
+    if test_mode:
+        fp = open('test.gif', 'rb')
+        msg_image = MIMEImage(fp.read())
+        fp.close()
+    else:
+        # Pick a random GIF from the library.
+        gif_number = randint(1, 12)
+        gif_name = str(gif_number) + '.gif'
 
-    # Attach Image
-    fp = open('GIFS/' + gif_name, 'rb')
-    msg_image = MIMEImage(fp.read())
-    fp.close()
+        # Attach Image
+        fp = open('GIFS/' + gif_name, 'rb')
+        msg_image = MIMEImage(fp.read())
+        fp.close()
 
     part1 = MIMEText(text, 'plain')
     part2 = MIMEText(html, 'html')
@@ -57,12 +67,12 @@ def send_email(recipient, body, person_name=''):
 
 
 everyone = [
+    {"name": "max",       "family": "red",   "email": "massimovlacancich@gmail.com",    "lastyearTo": "simone"   },
     {"name": "ignazio",   "family": "red",   "email": "ignaziomusarra@gmail.com",       "lastyearTo": "camillo"  },
     {"name": "loredana",  "family": "red",   "email": "lorymarty67@libero.it",          "lastyearTo": "claudio"  },
     {"name": "roberta",   "family": "red",   "email": "robertamusarra@gmail.com",       "lastyearTo": "sabrina"  },
     {"name": "riccardo",  "family": "red",   "email": "riccardoschiliro.rs@gmail.com",  "lastyearTo": "sergio"   },
     {"name": "silvia",    "family": "red",   "email": "musarrasilvia@gmail.com",        "lastyearTo": "franco"   },
-    {"name": "max",       "family": "red",   "email": "massimovlacancich@gmail.com",    "lastyearTo": "simone"   },
     {"name": "franco",    "family": "green", "email": "francomusarra@libero.it",        "lastyearTo": "riccardo" },
     {"name": "flavia",    "family": "green", "email": "flaviarosso@libero.it",          "lastyearTo": "max"      },
     {"name": "sabrina",   "family": "green", "email": "musarrasabrina@gmail.com",       "lastyearTo": "alessia"  },
@@ -77,7 +87,16 @@ everyone = [
 
 debug = True
 
-def run():
+def run_test():
+    # send all emails
+    print('-----')
+    print('Sending test email')
+    print('-----')
+    for person in everyone:
+        print('Sending test email to: ' + person['name'] + ' -@:  ' + person['email'])
+        send_email(person['email']) 
+
+def run_secret_santa():
 
     # Shuffle the list of people.
     shuffle(everyone)
@@ -144,6 +163,10 @@ def run():
     if not debug:
         for person in everyone:
             print('Sending email to: ' + person['name'] + ' -@:  ' + person['email'])
-            send_email(person['email'], '', person['giftingTo']) 
+            send_email(person['email'], person['giftingTo']) 
 
-run()
+
+if test_mode:
+    run_test()
+else:
+    run_secret_santa()
