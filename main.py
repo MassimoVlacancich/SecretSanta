@@ -17,8 +17,8 @@ debug = True # prints matches but does not send final email
 do_calls = True
 calls_file_path = "calls.txt"
 
-recording_url_audio1 = "https://secretsanta-9207.twil.io/recording1.mp3" # "https://raw.githubusercontent.com/MassimoVlacancich/SecretSanta/master/audio/recording1.mp3"
-recording_url_audio2 = "https://secretsanta-9207.twil.io/recording2.mp3" # "https://raw.githubusercontent.com/MassimoVlacancich/SecretSanta/master/audio/recording2.mp3"
+recording_url_audio1 = "https://raw.githubusercontent.com/MassimoVlacancich/SecretSanta/master/audio/recording1.mp3"
+recording_url_audio2 = "https://raw.githubusercontent.com/MassimoVlacancich/SecretSanta/master/audio/recording2.mp3"
 
 # Load secrets
 
@@ -59,21 +59,18 @@ def call(recipient_name, recipient_number, gift_to_name):
 
     audio_message = f"""
     <Response>
+        <Pause length="1"/>
         <Play>{recording_url_audio1}</Play>
+        <Say voice="Giorgio" language="it-IT" loop="2">{gift_to_name}</Say>
+        <Play>{recording_url_audio2}</Play>
     </Response>
     """
-
-    response = VoiceResponse()
-    # response.pause(length=1)
-    response.play(recording_url_audio1)
-    # response.say(gift_to_name, voice="alice", language="it-IT", loop=2)
-    # response.play(recording_url_audio2)
 
     try:
         call_result = client.calls.create(
             from_=twilio_number,
             to=recipient_number,
-            twiml=message,
+            twiml=audio_message,
             record=True
         )
         print(f"📞 Call triggered successfully! SID: {call_result.sid}")
@@ -169,22 +166,23 @@ def send_email(recipient, person_name=''):
 
 
 everyone = [
-    {"name": "max",       "family": "red",   "email": "massimovlacancich@gmail.com",    "lastyearTo": "luisa"    },
-    {"name": "ignazio",   "family": "red",   "email": "ignaziomusarra@gmail.com",       "lastyearTo": "sabrina"  },
-    {"name": "loredana",  "family": "red",   "email": "lorymarty67@libero.it",          "lastyearTo": "sergio"   },
-    {"name": "roberta",   "family": "red",   "email": "robertamusarra@gmail.com",       "lastyearTo": "simone"   },
-    {"name": "riccardo",  "family": "red",   "email": "riccardoschiliro.rs@gmail.com",  "lastyearTo": "flavia"   },
-    {"name": "silvia",    "family": "red",   "email": "musarrasilvia@gmail.com",        "lastyearTo": "camillo"  },
-    {"name": "franco",    "family": "green", "email": "francomusarra@libero.it",        "lastyearTo": "claudio"  },
-    {"name": "flavia",    "family": "green", "email": "flaviarosso@libero.it",          "lastyearTo": "roberta"  },
-    {"name": "sabrina",   "family": "green", "email": "musarrasabrina@gmail.com",       "lastyearTo": "riccardo" },
-    {"name": "camillo",   "family": "green", "email": "scalaa@yahoo.com",               "lastyearTo": "max"      },
-    {"name": "sergio",    "family": "blue",  "email": "musarrotti@gmail.com",           "lastyearTo": "antonella"},
-    {"name": "luisa",     "family": "blue",  "email": "luisa.arrotti@gmail.com",        "lastyearTo": "ignazio"  },
-    {"name": "simone",    "family": "blue",  "email": "simonemusarra96@gmail.com",      "lastyearTo": "loredana" },
-    {"name": "alessia",   "family": "blue",  "email": "alemusa98@gmail.com",            "lastyearTo": "silvia"   },
-    {"name": "claudio",   "family": "pink",  "email": "cmus29@gmail.com",               "lastyearTo": "alessia"  },
-    {"name": "antonella", "family": "pink",  "email": "brusa123451@gmail.com",          "lastyearTo": "franco"   },
+    {"name": "max",       "family": "red",   "doCall": False, "phone": "+393520391378", "email": "massimovlacancich@gmail.com",    "lastyearTo": "sergio"   },
+    {"name": "ignazio",   "family": "red",   "doCall": True,  "phone": "+393497039812", "email": "ignaziomusarra@gmail.com",       "lastyearTo": "luisa"    },
+    {"name": "loredana",  "family": "red",   "doCall": True,  "phone": "+393407440930", "email": "lorymarty67@libero.it",          "lastyearTo": "franco"   },
+    {"name": "roberta",   "family": "red",   "doCall": True,  "phone": "+393404051364", "email": "robertamusarra@gmail.com",       "lastyearTo": "camillo"  },
+    {"name": "riccardo",  "family": "red",   "doCall": True,  "phone": "+393467071214", "email": "riccardoschiliro.rs@gmail.com",  "lastyearTo": "claudio"  },
+    {"name": "silvia",    "family": "red",   "doCall": True,  "phone": "+393386761258", "email": "musarrasilvia@gmail.com",        "lastyearTo": "antonella"},
+    {"name": "franco",    "family": "green", "doCall": True,  "phone": "+393288367621", "email": "francomusarra@libero.it",        "lastyearTo": "silvia"   },
+    {"name": "flavia",    "family": "green", "doCall": True,  "phone": "+393276517912", "email": "flaviarosso@libero.it",          "lastyearTo": "simone"   },
+    {"name": "sabrina",   "family": "green", "doCall": True,  "phone": "+393288668234", "email": "musarrasabrina@gmail.com",       "lastyearTo": "loredana" },
+    {"name": "camillo",   "family": "green", "doCall": True,  "phone": "+393346442800", "email": "scalaa@yahoo.com",               "lastyearTo": "alessia"  },
+    {"name": "sergio",    "family": "blue",  "doCall": True,  "phone": "+393284760812", "email": "musarrotti@gmail.com",           "lastyearTo": "riccardo" },
+    {"name": "luisa",     "family": "blue",  "doCall": True,  "phone": "+393280003753", "email": "luisa.arrotti@gmail.com",        "lastyearTo": "sabrina"  },
+    {"name": "simone",    "family": "blue",  "doCall": True,  "phone": "+393453765481", "email": "simonemusarra96@gmail.com",      "lastyearTo": "ignazio"  },
+    {"name": "alessia",   "family": "blue",  "doCall": True,  "phone": "+393453765480", "email": "alemusa98@gmail.com",            "lastyearTo": "flavia"   },
+    {"name": "claudio",   "family": "pink",  "doCall": True,  "phone": "+393472200984", "email": "cmus29@gmail.com",               "lastyearTo": "massimo"  },
+    {"name": "sofia",     "family": "pink",  "doCall": True,  "phone": "+393450921600", "email": "sofiamusarra19@gmail.com",       "lastyearTo": ""         },
+    {"name": "antonella", "family": "pink",  "doCall": True,  "phone": "+393475166734", "email": "brusa123451@gmail.com",          "lastyearTo": "roberta"  },
 ]
 
 def run_test():
