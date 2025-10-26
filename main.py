@@ -9,7 +9,6 @@ from random import shuffle
 
 from dotenv import load_dotenv
 from twilio.rest import Client
-from twilio.twiml.voice_response import VoiceResponse
 
 test_mode = True # Only sends emails to all to check receipts, does not run matches
 test_only_me = True
@@ -61,7 +60,9 @@ def call(recipient_name, recipient_number, gift_to_name):
     <Response>
         <Pause length="1"/>
         <Play>{recording_url_audio1}</Play>
-        <Say voice="Giorgio" language="it-IT" loop="2">{gift_to_name}</Say>
+        <Say voice="Bianca" language="it-IT" loop="2"><prosody volume="loud">{gift_to_name}</prosody></Say>
+        <Play>{recording_url_audio1}</Play>
+        <Say voice="Bianca" language="it-IT" loop="2"><prosody volume="loud">{gift_to_name}</prosody></Say>
         <Play>{recording_url_audio2}</Play>
     </Response>
     """
@@ -264,13 +265,15 @@ def run_secret_santa():
     if not debug:
         for person in everyone:
             print('Sending email to: ' + person['name'] + ' -@:  ' + person['email'])
-            send_email(person['email'], person['giftingTo']) 
+            send_email(person['email'], person['giftingTo'])
+            if do_calls and person['doCall']:
+                call(person['name'], person['phone'], person['giftingTo'])
 
 
 if test_mode:
     if test_only_me:
         if do_calls:
-            call("silvia", "+393386761258", "luisa")
+            # call("silvia", "+393386761258", "luisa")
             log_recordings()
         else:
             run_test_on_me()
