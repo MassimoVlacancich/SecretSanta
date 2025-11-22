@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from datetime import datetime
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
@@ -18,6 +19,9 @@ calls_file_path = "calls.txt"
 
 recording_url_audio1 = "https://raw.githubusercontent.com/MassimoVlacancich/SecretSanta/master/audio/recording1.mp3"
 recording_url_audio2 = "https://raw.githubusercontent.com/MassimoVlacancich/SecretSanta/master/audio/recording2.mp3"
+
+# You can find the calls recordings here:
+# https://console.twilio.com/us1/monitor/logs/call-recordings?frameUrl=%2Fconsole%2Fvoice%2Frecordings%2Frecording-logs%3Fx-target-region%3Dus1
 
 # Load secrets
 
@@ -44,25 +48,24 @@ def read_filecontent(filename):
         content = content_file.read()
     return content
 
-def call(recipient_name, recipient_number, gift_to_name):
-    message = """
-    <Response>
-        <Pause length="1"/>
-        <Say voice="Giorgio" language="it-IT" loop="2">
-            Ciao! Sono priorio contento di sentirti oggi! <break time="200ms"/>
-            Sei a <emphasis> Briancone </emphasis>? Ma che bello bello bello bello! <break time="200ms"/>
-            Un abbraccio a Ludmilla detta Liucy
-        </Say>
-    </Response>
-    """
+def call(recipient_name, recipient_number, gift_to_name, wait_post_call=True):
+
+    if len(gift_to_name) < 4:
+        rate = "x-slow"
+    else:
+        rate = "slow"
 
     audio_message = f"""
     <Response>
         <Pause length="1"/>
         <Play>{recording_url_audio1}</Play>
-        <Say voice="Bianca" language="it-IT" loop="2"><prosody volume="loud">{gift_to_name}</prosody></Say>
+        <Say voice="Carla" language="it-IT" loop="2">
+            <prosody rate="{rate}" volume="x-loud">{gift_to_name}</prosody>
+        </Say>
         <Play>{recording_url_audio1}</Play>
-        <Say voice="Bianca" language="it-IT" loop="2"><prosody volume="loud">{gift_to_name}</prosody></Say>
+        <Say voice="Carla" language="it-IT" loop="2">
+            <prosody rate="{rate}" volume="x-loud">{gift_to_name}</prosody>
+        </Say>
         <Play>{recording_url_audio2}</Play>
     </Response>
     """
@@ -81,6 +84,8 @@ def call(recipient_name, recipient_number, gift_to_name):
         with open(calls_file_path, "a") as f:
             f.write(f"{timestamp},{recipient_name},{recipient_number},{call_result.sid}\n")
 
+        if wait_post_call:
+            time.sleep(1)
 
     except Exception as e:
         print(f"❌ Failed to place call: {e}")
@@ -110,6 +115,15 @@ def log_recordings():
         for rec in recs:
             recording_url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Recordings/{rec.sid}.mp3"
             print(f"{timestamp}, {recipient_name}, {recording_url}")
+
+def delete_all_recordings():
+    recordings = client.recordings.list(limit=50)
+    for r in recordings:
+        try:
+            client.recordings(r.sid).delete()
+            print(f"Deleted recording: {r.sid}")
+        except Exception as e:
+            print(f"Failed to delete {r.sid}: {e}")
 
 def send_email(recipient, person_name=''):
     import smtplib
@@ -181,7 +195,7 @@ everyone = [
     {"name": "luisa",     "family": "blue",  "doCall": True,  "phone": "+393280003753", "email": "luisa.arrotti@gmail.com",        "lastyearTo": "sabrina"  },
     {"name": "simone",    "family": "blue",  "doCall": True,  "phone": "+393453765481", "email": "simonemusarra96@gmail.com",      "lastyearTo": "ignazio"  },
     {"name": "alessia",   "family": "blue",  "doCall": True,  "phone": "+393453765480", "email": "alemusa98@gmail.com",            "lastyearTo": "flavia"   },
-    {"name": "claudio",   "family": "pink",  "doCall": True,  "phone": "+393472200984", "email": "cmus29@gmail.com",               "lastyearTo": "massimo"  },
+    # {"name": "claudio",   "family": "pink",  "doCall": True,  "phone": "+393472200984", "email": "cmus29@gmail.com",               "lastyearTo": "massimo"  },
     {"name": "sofia",     "family": "pink",  "doCall": True,  "phone": "+393450921600", "email": "sofiamusarra19@gmail.com",       "lastyearTo": ""         },
     {"name": "antonella", "family": "pink",  "doCall": True,  "phone": "+393475166734", "email": "brusa123451@gmail.com",          "lastyearTo": "roberta"  },
 ]
@@ -271,13 +285,17 @@ def run_secret_santa():
 
 
 if test_mode:
+    print('Running in test mode!')
     if test_only_me:
         if do_calls:
-            # call("silvia", "+393386761258", "luisa")
-            log_recordings()
+            call("sergio", "+393284760812", "vedi la mail")
+            # log_recordings()
+            # delete_all_recordings()
         else:
             run_test_on_me()
     else:
         run_test()
 else:
+    print('Running the Real Secret Santa!')
+    time.sleep(3)
     run_secret_santa()
